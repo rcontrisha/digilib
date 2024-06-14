@@ -11,17 +11,20 @@ class DaftarUser extends StatefulWidget {
 class _DaftarUserState extends State<DaftarUser> {
   late Future<List<Map<String, dynamic>>> _futureUsers;
   late List<Map<String, dynamic>> _groupList = [];
+  late List<Map<String, dynamic>> _users = [];
 
   @override
   void initState() {
     super.initState();
     _futureUsers = fetchUsers();
     _loadGroups();
+    _loadUsers();
   }
 
   void _refreshUsers() {
     setState(() {
       _futureUsers = fetchUsers();
+      _loadUsers();
     });
   }
 
@@ -36,16 +39,35 @@ class _DaftarUserState extends State<DaftarUser> {
     }
   }
 
+  Future<void> _loadUsers() async {
+    try {
+      final users = await fetchUsers();
+      setState(() {
+        _users = users;
+      });
+    } catch (e) {
+      print('Error loading users: $e');
+    }
+  }
+
+  String _generateNewUserId() {
+    if (_users.isEmpty) {
+      return 'USR0001';
+    } else {
+      final lastUserId = _users.last['id_user'];
+      final newUserIdNum = int.parse(lastUserId.substring(3)) + 1;
+      return 'USR${newUserIdNum.toString().padLeft(4, '0')}';
+    }
+  }
+
   void _showUserDialog({Map<String, dynamic>? user}) {
-    final TextEditingController idController =
-        TextEditingController(text: user != null ? user['id_user'] : '');
     final TextEditingController nameController =
         TextEditingController(text: user != null ? user['nama_user'] : '');
     final TextEditingController emailController =
         TextEditingController(text: user != null ? user['email'] : '');
     final TextEditingController passwordController = TextEditingController();
-    final TextEditingController groupController =
-        TextEditingController(text: user != null ? user['id_group_user'] : '');
+    String? selectedGroup =
+        user != null ? user['id_group_user'].toString() : null;
     bool isActive = user != null ? (user['aktif'] == 'Y') : true;
 
     List<DropdownMenuItem<String>> dropdownItems = _groupList.map((group) {
@@ -54,6 +76,10 @@ class _DaftarUserState extends State<DaftarUser> {
         child: Text(group['desk_group_user']),
       );
     }).toList();
+
+    if (selectedGroup == null && dropdownItems.isNotEmpty) {
+      selectedGroup = dropdownItems.first.value;
+    }
 
     showDialog(
       context: context,
@@ -80,10 +106,10 @@ class _DaftarUserState extends State<DaftarUser> {
                         obscureText: true,
                       ),
                     DropdownButtonFormField<String>(
-                      value: groupController.text,
+                      value: selectedGroup,
                       onChanged: (newValue) {
                         setState(() {
-                          groupController.text = newValue!;
+                          selectedGroup = newValue!;
                         });
                       },
                       items: dropdownItems,
@@ -114,9 +140,10 @@ class _DaftarUserState extends State<DaftarUser> {
               onPressed: () async {
                 try {
                   final userMap = {
+                    'id_user': user != null ? user['id_user'] : _generateNewUserId(),
                     'nama_user': nameController.text,
                     'email': emailController.text,
-                    'id_group_user': groupController.text,
+                    'id_group_user': selectedGroup,
                     'aktif': isActive,
                   };
                   if (user != null) {

@@ -18,8 +18,7 @@ Future<Map<String, dynamic>> getUserInfo(String userId) async {
   final url = Uri.parse(
       'http://192.168.1.7:8000/api/users/$userId'); // Ganti dengan URL API yang sesuai
   final response = await http.get(url);
-  print('Response status: ${response.statusCode}');
-  print('Response body: ${response.body}');
+
   if (response.statusCode == 200) {
     final Map<String, dynamic> data = json.decode(response.body);
     return data;
@@ -55,9 +54,29 @@ Future<void> editUser(String id, Map<String, dynamic> user) async {
 }
 
 Future<void> deleteUser(String id) async {
-  final response = await http.delete(Uri.parse('$baseUrl/users/$id'));
+  final response = await http.delete(
+    Uri.parse('$baseUrl/users/$id'),
+    headers: {'Content-Type': 'application/json'},
+  );
 
   if (response.statusCode != 200) {
     throw Exception('Failed to delete user');
+  }
+}
+
+Future<void> editPassword(String userId, String newPassword) async {
+  final url = Uri.parse(
+      '$baseUrl/users/edit-password'); // Sesuaikan dengan URL API yang benar
+  final response = await http.post(
+    url,
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({
+      'id': userId,
+      'pass': newPassword,
+    }),
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception('Failed to edit password');
   }
 }

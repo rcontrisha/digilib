@@ -24,10 +24,6 @@ class PinjamService {
       },
       body: jsonEncode(peminjaman),
     );
-
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
-
     if (response.statusCode == 201) {
       return json.decode(response.body);
     } else {

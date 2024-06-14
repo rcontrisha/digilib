@@ -1,8 +1,54 @@
+import 'package:digilib/Services/book_services.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../Widgets/sidebar.dart';
+import '../../Services/log_services.dart'; // Sesuaikan dengan path log_services.dart
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late int totalLogsCount = 0;
+  late int bookCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTotalLogsCount();
+    _fetchBookCount();
+  }
+
+  Future<void> _fetchTotalLogsCount() async {
+    try {
+      final logService = LogService();
+      String selectedDate =
+          DateTime.now().toString().substring(0, 10); // Tanggal hari ini
+      List<dynamic> logs = await logService.fetchLogsByDate(selectedDate);
+
+      setState(() {
+        totalLogsCount = logs.length; // Hitung jumlah total log
+      });
+    } catch (e) {
+      print('Error fetching total logs count: $e');
+      // Handle error
+    }
+  }
+
+  Future<void> _fetchBookCount() async {
+    try {
+      List<Map<String, dynamic>> books = await fetchBooks();
+
+      setState(() {
+        bookCount = books.length; // Menghitung jumlah buku terupload
+      });
+    } catch (e) {
+      print('Error fetching book count: $e');
+      // Handle error
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,8 +94,10 @@ class HomeScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  _buildCard('Member online', '1', Icons.people, Colors.teal),
-                  _buildCard('Buku Terupload', '4', Icons.book, Colors.pink),
+                  _buildCard('Pengunjung Hari Ini', '$totalLogsCount',
+                      Icons.person, Colors.teal),
+                  _buildCard(
+                      'Buku Terupload', '$bookCount', Icons.book, Colors.pink),
                 ],
               ),
             ],

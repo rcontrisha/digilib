@@ -28,7 +28,8 @@ class KategoriService {
   }
 
   // Create new category
-  static Future<Map<String, dynamic>> createCategory(Map<String, dynamic> category) async {
+  static Future<Map<String, dynamic>> createCategory(
+      Map<String, dynamic> category) async {
     final response = await http.post(
       Uri.parse('$baseUrl/kategori'),
       headers: {'Content-Type': 'application/json'},
@@ -43,7 +44,8 @@ class KategoriService {
   }
 
   // Update category
-  static Future<Map<String, dynamic>> updateCategory(String id, Map<String, dynamic> category) async {
+  static Future<Map<String, dynamic>> updateCategory(
+      String id, Map<String, dynamic> category) async {
     final response = await http.put(
       Uri.parse('$baseUrl/kategori/$id'),
       headers: {'Content-Type': 'application/json'},

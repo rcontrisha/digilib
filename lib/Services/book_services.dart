@@ -20,8 +20,6 @@ Future<Map<String, dynamic>> getBookInfo(String bookId) async {
   final url = Uri.parse(
       'http://192.168.1.7:8000/api/books/$bookId'); // Ganti dengan URL API yang sesuai
   final response = await http.get(url);
-  print('Response status: ${response.statusCode}');
-  print('Response body: ${response.body}');
   if (response.statusCode == 200) {
     final Map<String, dynamic> data = json.decode(response.body);
     return data;
@@ -42,9 +40,6 @@ Future<void> addBook(Map<String, dynamic> newBook) async {
     body: jsonEncode(newBook),
   );
 
-  print('Response status: ${response.statusCode}');
-  print('Response body: ${response.body}');
-
   if (response.statusCode != 201) {
     throw Exception('Failed to add book');
   }
@@ -61,9 +56,6 @@ Future<void> editBook(String bookId, Map<String, dynamic> updatedBook) async {
     body: jsonEncode(updatedBook),
   );
 
-  print('Response status: ${response.statusCode}');
-  print('Response body: ${response.body}');
-
   if (response.statusCode != 200) {
     throw Exception('Failed to edit book');
   }
@@ -77,5 +69,18 @@ Future<void> deleteBook(String id) async {
 
   if (response.statusCode != 200) {
     throw Exception('Failed to delete book');
+  }
+}
+
+Future<List<Map<String, dynamic>>> fetchBooksByUser(String userId) async {
+  const String baseUrl = 'http://192.168.1.7:8000/api';
+
+  final response = await http.get(Uri.parse('$baseUrl/contribution/$userId'));
+
+  if (response.statusCode == 200) {
+    List<dynamic> data = json.decode(response.body);
+    return data.map((item) => item as Map<String, dynamic>).toList();
+  } else {
+    throw Exception('Failed to load books');
   }
 }

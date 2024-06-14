@@ -1,3 +1,4 @@
+import 'package:digilib/Modules/User%20Profile/user_profile.dart';
 import 'package:digilib/Services/menu_services.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -85,6 +86,8 @@ class _SidebarState extends State<Sidebar> {
         return Icons.supervised_user_circle;
       case 'lock_person':
         return Icons.lock_person;
+      case 'archive':
+        return Icons.archive;
       // Add more icons as needed
       default:
         return Icons.help; // Default icon if the icon name is not found
@@ -166,6 +169,22 @@ class _SidebarState extends State<Sidebar> {
                                   ),
                                   ..._buildMenuItems(
                                       allowedMenus, iconMap, context),
+                                  Divider(
+                                      thickness: 2, indent: 10, endIndent: 10),
+                                  ListTile(
+                                      leading: Icon(
+                                        Icons.person,
+                                      ),
+                                      title: Text(
+                                        'Profil User',
+                                      ),
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    UserProfile()));
+                                      }),
                                   ListTile(
                                     leading: Icon(
                                       Icons.logout,
@@ -175,8 +194,7 @@ class _SidebarState extends State<Sidebar> {
                                       'Logout',
                                       style: TextStyle(color: Colors.red),
                                     ),
-                                    onTap:
-                                        _logout, // Panggil method logout saat item logout di-tap
+                                    onTap: _logout,
                                   ),
                                 ],
                               );

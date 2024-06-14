@@ -9,6 +9,7 @@ class GroupUser extends StatefulWidget {
 
 class _GroupUserState extends State<GroupUser> {
   late Future<List<Map<String, dynamic>>> _futureGroups;
+  List<Map<String, dynamic>> _groups = []; // Simpan grup secara lokal
 
   @override
   void initState() {
@@ -19,7 +20,20 @@ class _GroupUserState extends State<GroupUser> {
   void _refreshGroups() {
     setState(() {
       _futureGroups = GroupServices.fetchGroups();
+      _futureGroups.then((groups) {
+        _groups = groups;
+      });
     });
+  }
+
+  String _generateNewGroupId() {
+    if (_groups.isEmpty) {
+      return 'GRP0001';
+    } else {
+      final lastGroupId = _groups.last['id_group_user'];
+      final newGroupIdNum = int.parse(lastGroupId.substring(3)) + 1;
+      return 'GRP${newGroupIdNum.toString().padLeft(4, '0')}';
+    }
   }
 
   void _showGroupDialog({Map<String, dynamic>? group}) {
@@ -52,6 +66,9 @@ class _GroupUserState extends State<GroupUser> {
               onPressed: () async {
                 try {
                   final groupData = {
+                    'id_group_user': group != null
+                        ? group['id_group_user']
+                        : _generateNewGroupId(),
                     'desk_group_user': deskController.text,
                   };
                   if (group != null) {
@@ -59,6 +76,8 @@ class _GroupUserState extends State<GroupUser> {
                         group['id_group_user'], groupData);
                   } else {
                     await GroupServices.createGroup(groupData);
+                    _groups
+                        .add(groupData); // Tambahkan grup baru ke daftar lokal
                   }
                   _refreshGroups();
                   Navigator.pop(context);
@@ -91,6 +110,8 @@ class _GroupUserState extends State<GroupUser> {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else {
             List<Map<String, dynamic>> groups = snapshot.data ?? [];
+            _groups =
+                groups; // Update daftar grup lokal setiap kali data dimuat
             return ListView.builder(
               itemCount: groups.length,
               itemBuilder: (context, index) {
